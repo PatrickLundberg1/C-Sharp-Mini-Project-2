@@ -4,26 +4,120 @@
 using C_Sharp_Mini_Project_2;
 using System.Numerics;
 
-// test list
-/*
-List<Asset> assets = new List<Asset>()
-            {
-                new Phone("iPhone", "8", "Spain", Convert.ToDateTime("2019-11-05"), 970),
-                new Computer("HP", "Elitebook", "Spain", Convert.ToDateTime("2022-05-01"), 1423),
-                new Phone("iPhone", "11", "Spain", Convert.ToDateTime("2022-04-25"), 990),
-                new Phone("iPhone", "X", "Sweden", Convert.ToDateTime("2019-08-05"), 1245),
-                new Phone("Motorola", "Razr", "Sweden", Convert.ToDateTime("2019-09-06"), 970),
-                new Computer("HP", "Elitebook", "Sweden", Convert.ToDateTime("2019-10-07"), 588),
-                new Computer("Asus", "W234", "USA", Convert.ToDateTime("2019-07-21"), 1200),
-                new Computer("Lenovo", "Yoga 730", "USA", Convert.ToDateTime("2019-09-28"), 835),
-                new Computer("Lenovo", "Yoga 530", "USA", Convert.ToDateTime("2019-11-21"), 1030)
-            };
-*/
+// Reads input from user to load phone for other actions
+// curr_context: current asset database context used
+// Returns null if the phone can not be found
+static Phone? LoadPhone(AssetDbContext curr_context)
+{
+    int id = 0;
+    string input = "";
 
-Console.WriteLine("Welcome to Asset Tracking! Type in \"exit\" at any time to stop the program and display all Assets.");
+    List<Phone> phone_list = curr_context.phones.ToList();
+
+    if (phone_list.Count == 0)
+    {
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine("No phones exist.");
+        Console.ResetColor();
+        return null;
+    }
+
+    Console.WriteLine("Current list of phones: ");
+    Console.ForegroundColor = ConsoleColor.Blue;
+    foreach (Phone phone in phone_list)
+    {
+        Console.WriteLine($"Id:{phone.Id} | Brand:{phone.Brand} | Model:{phone.Model} | Office:{phone.Office} | Date:{phone.Purchase_date} | Price(USD):{phone.Price}");
+    }
+    Console.ResetColor();
+
+
+    while (true)
+    {
+        Console.WriteLine("Please input the Id of the phone: ");
+        input = (Console.ReadLine() ?? "").Trim();
+
+        if (int.TryParse(input, out id))
+        {
+            break;
+        }
+        else
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("Input format error, please type in an integer for the id.");
+            Console.ResetColor();
+        }
+    }
+
+    Phone? phone_edit = curr_context.phones.FirstOrDefault(p => p.Id == id);
+
+    if (phone_edit == null)
+    {
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine("No phones with that Id exists.");
+        Console.ResetColor();
+    }
+    return phone_edit;
+}
+
+// Reads input from user to load computer for other actions
+// curr_context: current asset database context used
+// Returns null if the computer can not be found
+static Computer? LoadComputer(AssetDbContext curr_context)
+{
+    int id = 0;
+    string input = "";
+
+    List<Computer> comp_list = curr_context.computers.ToList();
+
+    if (comp_list.Count == 0)
+    {
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine("No computers exist.");
+        Console.ResetColor();
+        return null;
+    }
+
+    Console.WriteLine("Current list of computers: ");
+    Console.ForegroundColor = ConsoleColor.Blue;
+    foreach (Computer comp in comp_list)
+    {
+        Console.WriteLine($"Id:{comp.Id} | Brand:{comp.Brand} | Model:{comp.Model} | Office:{comp.Office} | Date:{comp.Purchase_date} | Price(USD):{comp.Price}");
+    }
+    Console.ResetColor();
+
+    while (true)
+    {
+        Console.WriteLine("Please input the Id of the computer: ");
+        input = (Console.ReadLine() ?? "").Trim();
+
+        if (int.TryParse(input, out id))
+        {
+            break;
+        }
+        else
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("Input format error, please type in an integer for the id.");
+            Console.ResetColor();
+        }
+    }
+
+    Computer? comp_edit = curr_context.computers.FirstOrDefault(c => c.Id == id);
+
+    if (comp_edit == null)
+    {
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine("No computers with that Id exists.");
+        Console.ResetColor();
+    }
+
+    return comp_edit;
+}
+
+Console.WriteLine("Welcome to Asset Tracking!");
 string input = "", type = "", brand = "", model = "", office = "", edit = "";
 DateTime pd = DateTime.Now;
-int price = 0, command, id;
+int price = 0, command;
 
 AssetDbContext Context = new AssetDbContext();
 
@@ -180,39 +274,9 @@ while (true)
 
         if(input == "p")
         {
-            List<Phone> phone_list = Context.phones.ToList();
-
-            if(phone_list.Count == 0)
+            Phone? phone_edit = LoadPhone(Context);
+            if(phone_edit == null) 
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("No phones exist.");
-                Console.ResetColor();
-                continue;
-            }
-            
-            while(true)
-            {
-                Console.WriteLine("Please input the Id of the phone to edit: ");
-                input = (Console.ReadLine() ?? "").Trim();
-
-                if(int.TryParse(input, out id)){
-                    break;
-                }
-                else
-                {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("Input format error, please type in an integer for the id.");
-                    Console.ResetColor();
-                }
-            }
-                
-            Phone? phone_edit = Context.phones.FirstOrDefault(p => p.Id == id);
-
-            if (phone_edit == null)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("No phones with that Id exists.");
-                Console.ResetColor();
                 continue;
             }
 
@@ -343,40 +407,9 @@ while (true)
         else
         {
             // Same as above but for computer table
-            List<Computer> comp_list = Context.computers.ToList();
-
-            if (comp_list.Count == 0)
+            Computer? comp_edit = LoadComputer(Context);
+            if(comp_edit == null)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("No computers exist.");
-                Console.ResetColor();
-                continue;
-            }
-
-            while (true)
-            {
-                Console.WriteLine("Please input the Id of the computer to edit: ");
-                input = (Console.ReadLine() ?? "").Trim();
-
-                if (int.TryParse(input, out id))
-                {
-                    break;
-                }
-                else
-                {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("Input format error, please type in an integer for the id.");
-                    Console.ResetColor();
-                }
-            }
-
-            Computer? comp_edit = Context.computers.FirstOrDefault(c => c.Id == id);
-
-            if (comp_edit == null)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("No computers with that Id exists.");
-                Console.ResetColor();
                 continue;
             }
 
@@ -406,21 +439,18 @@ while (true)
             switch (edit)
             {
                 case "b":
-
                     Console.Write("Please input the name of the brand: ");
                     brand = (Console.ReadLine() ?? "").Trim();
 
                     comp_edit.Brand = brand;
                     break;
                 case "m":
-
                     Console.Write("Please input the brand model: ");
                     model = (Console.ReadLine() ?? "").Trim();
 
                     comp_edit.Model = model;
                     break;
                 case "o":
-
                     while (true)
                     {
                         Console.Write("Please select the office for the asset. There are currently offices in Spain, Sweden and USA.\nPlease input SP, SW or US for (Sp)ain, (Sw)eden or (US)A: ");
@@ -453,7 +483,6 @@ while (true)
                     comp_edit.Office = office;
                     break;
                 case "d":
-
                     while (true)
                     {
                         Console.Write("Please input the purchase date, for example in the format year-month-day: ");
@@ -474,7 +503,6 @@ while (true)
                     comp_edit.Purchase_date = pd;
                     break;
                 case "p":
-
                     while (true)
                     {
                         Console.Write("Please input the price (USD): ");
@@ -529,40 +557,9 @@ while (true)
         {
             // Read id from user
             // Delete field from table if id exists
-            List<Phone> phone_list = Context.phones.ToList();
-
-            if (phone_list.Count == 0)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("No phones exist.");
-                Console.ResetColor();
-                continue;
-            }
-
-            while (true)
-            {
-                Console.WriteLine("Please input the Id of the phone to remove: ");
-                input = (Console.ReadLine() ?? "").Trim();
-
-                if (int.TryParse(input, out id))
-                {
-                    break;
-                }
-                else
-                {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("Input format error, please type in an integer for the id.");
-                    Console.ResetColor();
-                }
-            }
-
-            Phone? phone_edit = Context.phones.FirstOrDefault(p => p.Id == id);
-
+            Phone? phone_edit = LoadPhone(Context);
             if (phone_edit == null)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("No phones with that Id exists.");
-                Console.ResetColor();
                 continue;
             }
 
@@ -575,40 +572,9 @@ while (true)
         else
         {
             // Same as above but for computers
-            List<Computer> comp_list = Context.computers.ToList();
-
-            if (comp_list.Count == 0)
+            Computer? comp_edit = LoadComputer(Context);
+            if(comp_edit == null)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("No computers exist.");
-                Console.ResetColor();
-                continue;
-            }
-
-            while (true)
-            {
-                Console.WriteLine("Please input the Id of the computer to remove: ");
-                input = (Console.ReadLine() ?? "").Trim();
-
-                if (int.TryParse(input, out id))
-                {
-                    break;
-                }
-                else
-                {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("Input format error, please type in an integer for the id.");
-                    Console.ResetColor();
-                }
-            }
-
-            Computer? comp_edit = Context.computers.FirstOrDefault(c => c.Id == id);
-
-            if (comp_edit == null)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("No computers with that Id exists.");
-                Console.ResetColor();
                 continue;
             }
 

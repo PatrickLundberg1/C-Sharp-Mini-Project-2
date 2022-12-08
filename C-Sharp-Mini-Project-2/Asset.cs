@@ -8,6 +8,12 @@ namespace C_Sharp_Mini_Project_2
 {
     internal class Asset
     {
+        public Asset(int id, string brand, string model, string office, DateTime purchase_date, int price)
+            : this(brand, model, office, purchase_date, price)
+        {
+            Id = id;
+        }
+
         public Asset(string brand, string model, string office, DateTime purchase_date, int price)
         {
             Brand = brand;

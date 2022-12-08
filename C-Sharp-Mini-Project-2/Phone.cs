@@ -8,6 +8,10 @@ namespace C_Sharp_Mini_Project_2
 {
     internal class Phone : Asset
     {
+        public Phone(int id, string brand, string model, string office, DateTime purchase_date, int price)
+            : base(id, brand, model, office, purchase_date, price)
+        { }
+
         public Phone(string brand, string model, string office, DateTime purchase_date, int price)
             : base(brand, model, office, purchase_date, price)
         { }
