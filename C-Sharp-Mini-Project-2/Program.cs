@@ -114,6 +114,132 @@ static Computer? LoadComputer(AssetDbContext curr_context)
     return comp_edit;
 }
 
+// Handles the logic when asking the user for input
+// data_type: used to determine what data to ask user for, use the Input_Type enum for valid input
+// Returns the result after proper user data validation as a string
+static string GetUserData(Input_Type data_type)
+{
+    string input = "";
+    if (data_type == Input_Type.Asset_Type)
+    {
+        while (true)
+        {
+            Console.Write("Please input P or C for (P)hone or (C)omputer: ");
+            input = (Console.ReadLine() ?? "").Trim().ToLower();
+
+            if (input == "p" || input == "c")
+            {
+                return input;
+            }
+            else
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Command not understood, please try again.");
+                Console.ResetColor();
+            }
+        }
+    }
+    else if(data_type == Input_Type.Purchase_Date)
+    {
+        while (true)
+        {
+            Console.Write("Please input the purchase date, for example in the format year-month-day: ");
+            input = (Console.ReadLine() ?? "").Trim();
+
+            if (DateTime.TryParse(input, out _))
+            {
+                return input;
+            }
+            else
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Date format error, please try again");
+                Console.ResetColor();
+            }
+        }
+    }
+    else if(data_type == Input_Type.Price)
+    {
+        while (true)
+        {
+            Console.Write("Please input the price (USD): ");
+            input = (Console.ReadLine() ?? "").Trim();
+
+            if (int.TryParse(input, out _))
+            {
+                return input;
+            }
+            else
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Input format error, please type in an integer for the price.");
+                Console.ResetColor();
+            }
+        }
+    }
+    else if(data_type == Input_Type.Office)
+    {
+        while (true)
+        {
+            Console.Write("Please select the office for the asset. There are currently offices in Spain, Sweden and USA.\nPlease input SP, SW or US for (Sp)ain, (Sw)eden or (US)A: ");
+            input = (Console.ReadLine() ?? "").Trim().ToLower();
+
+            if (input == "sp" || input == "sw" || input == "us")
+            {
+                switch (input)
+                {
+                    case "sp":
+                        return "Spain";
+                    case "sw":
+                        return "Sweden";
+                    default:
+                        return "USA";
+                }
+            }
+            else
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Command not understood, please try again.");
+                Console.ResetColor();
+            }
+        }
+    }
+    else if(data_type == Input_Type.Edit_Type)
+    {
+        while (true)
+        {
+            Console.WriteLine("Please input B, M, O, D or P to edit the (B)rand, (M)odel, (O)ffice," +
+                                " (D)ate or (P)rice: ");
+            input = (Console.ReadLine() ?? "").Trim().ToLower();
+
+            string[] valid = { "b", "m", "o", "d", "p" };
+            if (valid.Contains(input))
+            {
+                return input;
+            }
+            else
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Command not understood, please try again.");
+                Console.ResetColor();
+            }
+        }
+    }
+    else if(data_type == Input_Type.Brand)
+    {
+        Console.Write("Please input the name of the brand: ");
+        return (Console.ReadLine() ?? "").Trim();
+    }
+    else if(data_type == Input_Type.Model)
+    {
+        Console.Write("Please input the brand model: ");
+        return (Console.ReadLine() ?? "").Trim();
+    }
+
+    throw new ArgumentException("Invalid data type used as argument");
+}
+
+// Start of main program
 Console.WriteLine("Welcome to Asset Tracking!");
 string input = "", type = "", brand = "", model = "", office = "", edit = "";
 DateTime pd = DateTime.Now;
@@ -148,92 +274,17 @@ while (true)
     // execute command
     if (command == 1)
     {
-        while (true)
-        {
-            Console.Write("Please input P or C for (P)hone or (C)omputer: ");
-            input = (Console.ReadLine() ?? "").Trim().ToLower();
+        type = GetUserData(Input_Type.Asset_Type);
 
-            if (input == "p" || input == "c")
-            {
-                type = input;
-                break;
-            }
-            else
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Command not understood, please try again.");
-                Console.ResetColor();
-            }
-        }
+        brand = GetUserData(Input_Type.Brand);
 
-        Console.Write("Please input the name of the brand: ");
-        brand = (Console.ReadLine() ?? "").Trim();
+        model = GetUserData(Input_Type.Model);
 
-        Console.Write("Please input the brand model: ");
-        model = (Console.ReadLine() ?? "").Trim();
+        pd = DateTime.Parse(GetUserData(Input_Type.Purchase_Date));
 
-        while (true)
-        {
-            Console.Write("Please input the purchase date, for example in the format year-month-day: ");
-            input = (Console.ReadLine() ?? "").Trim();
+        price = int.Parse(GetUserData(Input_Type.Price));
 
-            if (DateTime.TryParse(input, out pd))
-            {
-                break;
-            }
-            else
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Date format error, please try again");
-                Console.ResetColor();
-            }
-        }
-
-        while (true)
-        {
-            Console.Write("Please input the price (USD): ");
-            input = (Console.ReadLine() ?? "").Trim();
-
-            if (int.TryParse(input, out price))
-            {
-                break;
-            }
-            else
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Input format error, please type in an integer for the price.");
-                Console.ResetColor();
-            }
-        }
-
-        while (true)
-        {
-            Console.Write("Please select the office for the asset. There are currently offices in Spain, Sweden and USA.\nPlease input SP, SW or US for (Sp)ain, (Sw)eden or (US)A: ");
-            input = (Console.ReadLine() ?? "").Trim().ToLower();
-
-            if (input == "sp" || input == "sw" || input == "us")
-            {
-                switch (input)
-                {
-                    case "sp":
-                        office = "Spain";
-                        break;
-                    case "sw":
-                        office = "Sweden";
-                        break;
-                    default:
-                        office = "USA";
-                        break;
-                }
-                break;
-            }
-            else
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Command not understood, please try again.");
-                Console.ResetColor();
-            }
-        }
+        office = GetUserData(Input_Type.Office);
 
         if (type == "p")
         {
@@ -254,143 +305,46 @@ while (true)
     }
     else if(command == 2)
     {
-        while (true)
-        {
-            Console.Write("Please input P or C for (P)hone or (C)omputer: ");
-            input = (Console.ReadLine() ?? "").Trim().ToLower();
+        type = GetUserData(Input_Type.Asset_Type);
 
-            if (input == "p" || input == "c")
-            {
-                type = input;
-                break;
-            }
-            else
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Command not understood, please try again.");
-                Console.ResetColor();
-            }
-        }
-
-        if(input == "p")
+        if (type == "p")
         {
             Phone? phone_edit = LoadPhone(Context);
             if(phone_edit == null) 
             {
+                // no phone found
                 continue;
             }
 
             // Check what field to edit
             // Read new value for field
             // Update table
-            while (true)
-            {
-                Console.WriteLine("Please input B, M, O, D or P to edit the (B)rand, (M)odel, (O)ffice," +
-                                    " (D)ate or (P)rice: ");
-                input = (Console.ReadLine() ?? "").Trim().ToLower();
-
-                string[] valid = { "b", "m", "o", "d", "p" };
-                if (valid.Contains(input))
-                {
-                    edit = input;
-                    break;
-                }
-                else
-                {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("Command not understood, please try again.");
-                    Console.ResetColor();
-                }
-            }
+            edit = GetUserData(Input_Type.Edit_Type);
 
             switch (edit)
             {
                 case "b":
-
-                    Console.Write("Please input the name of the brand: ");
-                    brand = (Console.ReadLine() ?? "").Trim();
+                    brand = GetUserData(Input_Type.Brand);
 
                     phone_edit.Brand = brand;
                     break;          
                 case "m":
-
-                    Console.Write("Please input the brand model: ");
-                    model = (Console.ReadLine() ?? "").Trim();
+                    model = GetUserData(Input_Type.Model);
 
                     phone_edit.Model = model;
                     break; 
                 case "o":
-
-                    while (true)
-                    {
-                        Console.Write("Please select the office for the asset. There are currently offices in Spain, Sweden and USA.\nPlease input SP, SW or US for (Sp)ain, (Sw)eden or (US)A: ");
-                        input = (Console.ReadLine() ?? "").Trim().ToLower();
-
-                        if (input == "sp" || input == "sw" || input == "us")
-                        {
-                            switch (input)
-                            {
-                                case "sp":
-                                    office = "Spain";
-                                    break;
-                                case "sw":
-                                    office = "Sweden";
-                                    break;
-                                default:
-                                    office = "USA";
-                                    break;
-                            }
-                            break;
-                        }
-                        else
-                        {
-                            Console.ForegroundColor = ConsoleColor.Red;
-                            Console.WriteLine("Command not understood, please try again.");
-                            Console.ResetColor();
-                        }
-                    }
+                    office = GetUserData(Input_Type.Office);
 
                     phone_edit.Office = office;
                     break; 
                 case "d":
-
-                    while (true)
-                    {
-                        Console.Write("Please input the purchase date, for example in the format year-month-day: ");
-                        input = (Console.ReadLine() ?? "").Trim();
-
-                        if (DateTime.TryParse(input, out pd))
-                        {
-                            break;
-                        }
-                        else
-                        {
-                            Console.ForegroundColor = ConsoleColor.Red;
-                            Console.WriteLine("Date format error, please try again");
-                            Console.ResetColor();
-                        }
-                    }
+                    pd = DateTime.Parse(GetUserData(Input_Type.Purchase_Date));
 
                     phone_edit.Purchase_date = pd;
                     break;
                 case "p":
-
-                    while (true)
-                    {
-                        Console.Write("Please input the price (USD): ");
-                        input = (Console.ReadLine() ?? "").Trim();
-
-                        if (int.TryParse(input, out price))
-                        {
-                            break;
-                        }
-                        else
-                        {
-                            Console.ForegroundColor = ConsoleColor.Red;
-                            Console.WriteLine("Input format error, please type in an integer for the price.");
-                            Console.ResetColor();
-                        }
-                    }
+                    price = int.Parse(GetUserData(Input_Type.Price));
 
                     phone_edit.Price = price;
                     break;
@@ -410,115 +364,39 @@ while (true)
             Computer? comp_edit = LoadComputer(Context);
             if(comp_edit == null)
             {
+                // no computer found
                 continue;
             }
 
             // Check what field to edit
             // Read new value for field
             // Update table
-            while (true)
-            {
-                Console.WriteLine("Please input B, M, O, D or P to edit the (B)rand, (M)odel, (O)ffice," +
-                                    " (D)ate or (P)rice: ");
-                input = (Console.ReadLine() ?? "").Trim().ToLower();
-
-                string[] valid = { "b", "m", "o", "d", "p" };
-                if (valid.Contains(input))
-                {
-                    edit = input;
-                    break;
-                }
-                else
-                {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("Command not understood, please try again.");
-                    Console.ResetColor();
-                }
-            }
+            edit = GetUserData(Input_Type.Edit_Type);
 
             switch (edit)
             {
                 case "b":
-                    Console.Write("Please input the name of the brand: ");
-                    brand = (Console.ReadLine() ?? "").Trim();
+                    brand = GetUserData(Input_Type.Brand);
 
                     comp_edit.Brand = brand;
                     break;
                 case "m":
-                    Console.Write("Please input the brand model: ");
-                    model = (Console.ReadLine() ?? "").Trim();
+                    model = GetUserData(Input_Type.Model);
 
                     comp_edit.Model = model;
                     break;
                 case "o":
-                    while (true)
-                    {
-                        Console.Write("Please select the office for the asset. There are currently offices in Spain, Sweden and USA.\nPlease input SP, SW or US for (Sp)ain, (Sw)eden or (US)A: ");
-                        input = (Console.ReadLine() ?? "").Trim().ToLower();
-
-                        if (input == "sp" || input == "sw" || input == "us")
-                        {
-                            switch (input)
-                            {
-                                case "sp":
-                                    office = "Spain";
-                                    break;
-                                case "sw":
-                                    office = "Sweden";
-                                    break;
-                                default:
-                                    office = "USA";
-                                    break;
-                            }
-                            break;
-                        }
-                        else
-                        {
-                            Console.ForegroundColor = ConsoleColor.Red;
-                            Console.WriteLine("Command not understood, please try again.");
-                            Console.ResetColor();
-                        }
-                    }
+                    office = GetUserData(Input_Type.Office);
 
                     comp_edit.Office = office;
                     break;
                 case "d":
-                    while (true)
-                    {
-                        Console.Write("Please input the purchase date, for example in the format year-month-day: ");
-                        input = (Console.ReadLine() ?? "").Trim();
-
-                        if (DateTime.TryParse(input, out pd))
-                        {
-                            break;
-                        }
-                        else
-                        {
-                            Console.ForegroundColor = ConsoleColor.Red;
-                            Console.WriteLine("Date format error, please try again");
-                            Console.ResetColor();
-                        }
-                    }
+                    pd = DateTime.Parse(GetUserData(Input_Type.Purchase_Date));
 
                     comp_edit.Purchase_date = pd;
                     break;
                 case "p":
-                    while (true)
-                    {
-                        Console.Write("Please input the price (USD): ");
-                        input = (Console.ReadLine() ?? "").Trim();
-
-                        if (int.TryParse(input, out price))
-                        {
-                            break;
-                        }
-                        else
-                        {
-                            Console.ForegroundColor = ConsoleColor.Red;
-                            Console.WriteLine("Input format error, please type in an integer for the price.");
-                            Console.ResetColor();
-                        }
-                    }
+                    price = int.Parse(GetUserData(Input_Type.Price));
 
                     comp_edit.Price = price;
                     break;
@@ -535,31 +413,16 @@ while (true)
     }
     else if(command == 3)
     {
-        while (true)
-        {
-            Console.Write("Please input P or C for (P)hone or (C)omputer: ");
-            input = (Console.ReadLine() ?? "").Trim().ToLower();
+        type = GetUserData(Input_Type.Asset_Type);
 
-            if (input == "p" || input == "c")
-            {
-                type = input;
-                break;
-            }
-            else
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Command not understood, please try again.");
-                Console.ResetColor();
-            }
-        }
-
-        if (input == "p")
+        if (type == "p")
         {
             // Read id from user
             // Delete field from table if id exists
             Phone? phone_edit = LoadPhone(Context);
             if (phone_edit == null)
             {
+                // no phone found
                 continue;
             }
 
@@ -575,6 +438,7 @@ while (true)
             Computer? comp_edit = LoadComputer(Context);
             if(comp_edit == null)
             {
+                // no computer found
                 continue;
             }
 
@@ -619,4 +483,16 @@ foreach (Asset asset in ordered_list)
     string currency = asset.GetCurrency();
     Console.WriteLine(asset.GetType().Name.PadRight(space) + asset.Brand.PadRight(space) + asset.Model.PadRight(space) + asset.Office.PadRight(space) + asset.Purchase_date.ToString("MM\\/dd\\/yyyy").PadRight(space) + asset.Price.ToString().PadRight(space) + currency.PadRight(space) + asset.LocalPrice(currency).ToString("0.00"));
     Console.ResetColor();
+}
+
+// Enum used with the GetUserData function
+enum Input_Type
+{
+    Asset_Type,
+    Purchase_Date,
+    Price,
+    Office,
+    Edit_Type,
+    Brand,
+    Model
 }
